@@ -5,8 +5,6 @@ This document describes how to deploy Kubernetes on GCE with Calico network poli
 
 For more information on Project Calico, visit [projectcalico.org](http://projectcalico.org) and the [calico-containers repository](https://github.com/projectcalico/calico-containers).
 
-This guide will set up a simple Kubernetes cluster with a single Kubernetes master and three Kubernetes nodes.
-
 ## Prerequisites
 
 1. You need a Google Cloud Platform account with billing enabled. Visit the [Google Developers Console](http://cloud.google.com/console) for more details.
@@ -19,25 +17,25 @@ This guide will set up a simple Kubernetes cluster with a single Kubernetes mast
 
 ## Create the cluster
 
-1. Obtain a copy of Kubernetes
+1. Obtain a copy of Kubernetes.  The example below will use the latest master revision, but you can also download the latest release (at least 1.4) from [this page](https://github.com/kubernetes/kubernetes/releases).  Note that at the time of writing there's no release containing this function.
 
 ```shell
 git clone https://github.com/kubernetes/kubernetes.git
 ```
 
-1. Create a cluster on GCE with Calico network policy.
+2. If you want more than one cluster running in your project, want to use a different name, or want a different number of worker nodes, see the `<kubernetes>/cluster/gce/config-default.sh` file for more fine-grained configuration before you start up your cluster.
+
+3. Create a cluster on GCE with Calico network policy.  Add any additional configuration from step 2 in here.
 
 ```shell
 cd kubernetes
 NETWORK_POLICY_PROVIDER=calico cluster/kube-up.sh
 ```
 
-Note: currently this
+If you run into trouble, please see the section on [troubleshooting](/docs/getting-started-guides/gce/#troubleshooting), post to the
+[kubernetes-users group](https://groups.google.com/forum/#!forum/kubernetes-users), or come ask questions on the [Kubernetes](/docs/troubleshooting/#slack) or [Calico](https://slack.projectcalico.org) Slack channels.
 
-## Set up the master
-
-
-
+## Using the cluster
 
 
 
@@ -52,34 +50,14 @@ Note: currently this
 
 
 
-### NAT on the nodes
 
-The simplest method for enabling connectivity from containers to the internet is to use outgoing NAT on your Kubernetes nodes.
 
-Calico can provide outgoing NAT for containers.  To enable it, use the following `calicoctl` command:
-
-```shell
-ETCD_AUTHORITY=<master_ip:6666> calicoctl pool add <CONTAINER_SUBNET> --nat-outgoing
-```
-
-By default, `<CONTAINER_SUBNET>` will be `192.168.0.0/16`.  You can find out which pools have been configured with the following command:
-
-```shell
-ETCD_AUTHORITY=<master_ip:6666> calicoctl pool show
-```
-
-### NAT at the border router
-
-In a data center environment, it is recommended to configure Calico to peer with the border routers over BGP. This means that the container IPs will be routable anywhere in the data center, and so NAT is not needed on the nodes (though it may be enabled at the data center edge to allow outbound-only internet connectivity).
-
-The Calico documentation contains more information on how to configure Calico to [peer with existing infrastructure](https://github.com/projectcalico/calico-containers/blob/master/docs/ExternalConnectivity.md).
 
 ## Support Level
 
-
 IaaS Provider        | Config. Mgmt | OS     | Networking  | Docs                                              | Conforms | Support Level
 -------------------- | ------------ | ------ | ----------  | ---------------------------------------------     | ---------| ----------------------------
-Bare-metal           | custom       | Ubuntu | Calico      | [docs](/docs/getting-started-guides/ubuntu-calico)                          |          | Community ([@djosborne](https://github.com/djosborne))
+GCE           | shell / Saltstack       | GCI / Debian | GCE / Calico      | [docs](/docs/getting-started-guides/calico-network-policy)                          |          | Community ([@matthewdupre](https://github.com/matthewdupre), [@caseydavenport](https://github.com/caseydavenport))
 
 For support level information on all solutions, see the [Table of solutions](/docs/getting-started-guides/#table-of-solutions) chart.
 
